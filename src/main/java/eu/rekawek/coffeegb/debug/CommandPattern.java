@@ -1,17 +1,15 @@
 package eu.rekawek.coffeegb.debug;
 
-import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Predicate;
-
-import static com.google.common.collect.ImmutableSet.copyOf;
 import static com.google.common.collect.Maps.newLinkedHashMap;
 
 public class CommandPattern {
@@ -166,7 +164,7 @@ public class CommandPattern {
         private String description;
 
         private Builder(String[] commandNames) {
-            this.commandNames = ImmutableList.copyOf(commandNames);
+            this.commandNames = getList(commandNames);
             this.arguments = new ArrayList<>();
         }
 
@@ -192,13 +190,13 @@ public class CommandPattern {
 
         public Builder withOptionalValue(String name, String... values) {
             assertNoOptionalLastArgument();
-            arguments.add(new CommandArgument(name, false, copyOf(values)));
+            arguments.add(new CommandArgument(name, false, getSet(values)));
             return this;
         }
 
         public Builder withRequiredValue(String name, String... values) {
             assertNoOptionalLastArgument();
-            arguments.add(new CommandArgument(name, true, copyOf(values)));
+            arguments.add(new CommandArgument(name, true, getSet(values)));
             return this;
         }
 
@@ -211,6 +209,26 @@ public class CommandPattern {
             if (!arguments.isEmpty() && !arguments.get(arguments.size() - 1).isRequired()) {
                 throw new UnsupportedOperationException("Can't add argument after the optional one");
             }
+        }
+        
+        private List<String> getList(String[] aParam1){
+        	ArrayList<String> aList = new ArrayList<String>();
+        	if (aParam1.length > 0) {
+        		for (String s : aParam1) {
+        			aList.add(s);
+        		}
+        	}
+        	return ImmutableList.copyOf(aList);        	
+        }
+        
+        private Set<String> getSet(String[] aParam1){
+        	Set<String> aList = new HashSet<String>();
+        	if (aParam1.length > 0) {
+        		for (String s : aParam1) {
+        			aList.add(s);
+        		}
+        	}
+        	return ImmutableSet.copyOf(aList);        	
         }
 
         public CommandPattern build() {
